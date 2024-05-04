@@ -25,6 +25,8 @@ namespace Practice_01.Repository
         Task<bool> DeleteVendorById(Guid EventVendorId);
 
 
+        Task<VendorEventModel>GetvendorEventById(Guid Id);
+
 
 
 

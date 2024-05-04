@@ -253,5 +253,27 @@ namespace Practice_01.Controllers
                 return StatusCode(500, "An error occurred while deleting VendorEvent");
             }
         }
+
+
+        //get by id
+        [HttpGet("Id")]
+        public async Task<IActionResult> GetVendorEventById(Guid Id)
+        {
+            try
+            {
+                var vendorevent=await _vendorEventRepository.GetvendorEventById(Id);
+                if (vendorevent == null)
+                {
+                    return null;
+                }
+                return Ok(vendorevent);
+
+            }catch(Exception ex)
+            {
+                Console.WriteLine($"An error occurred while retrieving VendorEvent: {ex.Message}");
+                // Return 500 status code for internal server error
+                return StatusCode(500, "An error occurred while retrieving VendorEvent");
+            } 
+        }
     }
 }

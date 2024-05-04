@@ -413,6 +413,45 @@ namespace Practice_01.Repository
             }
         }
 
+        public async Task<VendorEventModel> GetvendorEventById(Guid Id)
+        {
+            try
+            {
+                var eventvendor=await _context.VendorEvents.
+                    Include(x=>x.Vendor)
+                    .Include(y=>y.Events)
+                    .FirstOrDefaultAsync(vendorevent=>vendorevent.Id == Id);
+                if(eventvendor == null)
+                {
+                    return null;
+                }
+                if (eventvendor.Vendor == null || eventvendor.Events == null)
+                {
+                    // Handle the case where navigation properties are null
+                    // For example, you could return null or throw an exception
+                    return null;
+                }
+                //map
+                var vendoreventmodel = new VendorEventModel
+                {
+                    Price = eventvendor.Price,
+                    Images = eventvendor.Images.Select(x => x.ImageUrl).ToList(),
+                    FirmName = eventvendor.Vendor.FirmName,
+                    CityName = eventvendor.Vendor.CityName,
+                    EventName = eventvendor.Events.EventName,
+                    Id = eventvendor.Id
+
+
+                };
+                return vendoreventmodel;
+
+            }catch(Exception ex)
+            {
+                Console.WriteLine("$\"An error occurred while retrieving VendorEvent: {ex.Message}\"");
+                throw;
+            }
+        }
+
         //public static IFormFile ConvertToIFormFile(Practice_01.Models.Image image)
         //{
         //    if (image == null)
@@ -516,7 +555,7 @@ namespace Practice_01.Repository
     //        .Where(ve => ve.Price == userGivenPrice);
     //}
 
-    //test
+   
 
 
 }
