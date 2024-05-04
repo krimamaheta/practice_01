@@ -375,6 +375,8 @@ namespace Practice_01.Repository
                 // Log the count of retrieved data
                 Console.WriteLine($"Retrieved {data.Count} records");
 
+
+              
                 // Return the retrieved data
                 return data;
             }
@@ -514,8 +516,8 @@ namespace Practice_01.Repository
     //        .Where(ve => ve.Price == userGivenPrice);
     //}
 
+    //test
 
-   
 
 }
 
