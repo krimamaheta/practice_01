@@ -183,17 +183,17 @@ namespace Practice_01.Controllers
             try
             {
                 bool res = await _vendorEventRepository.AddEventvendorDetails(viewModel, _cloudinary);
-                if(res)
+                if (res)
                 {
-                    return Ok("Decoration Added Successfullly........!");
+                    return Ok("Vendor Details Added Successfullly........!");
                 }
                 else
                 {
                     return BadRequest("fail to add vendor event");
                 }
-            }catch(Exception ex)
+            } catch (Exception ex)
             {
-                return StatusCode(500, new { message = "server error....1" });
+                return StatusCode(500, new { message = "server error...." });
             }
         }
 
@@ -223,11 +223,11 @@ namespace Practice_01.Controllers
         {
             try
             {
-            var list=_vendorEventRepository.GetAllVendorEventImages();
-            return Ok(list);
+                var list = _vendorEventRepository.GetAllVendorEventImages();
+                return Ok(list);
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
@@ -238,7 +238,7 @@ namespace Practice_01.Controllers
         {
             try
             {
-                var IsDeleted=await _vendorEventRepository.DeleteVendorById(Id);
+                var IsDeleted = await _vendorEventRepository.DeleteVendorById(Id);
                 if (IsDeleted)
                 {
                     return Ok("VendorEvent Deleted Successfully....!");
@@ -247,9 +247,9 @@ namespace Practice_01.Controllers
                 {
                     return NotFound("VendorEvent Not Found");
                 }
-            }catch(Exception ex)
+            } catch (Exception ex)
             {
-                Console.WriteLine("ERROR DURING DELETION",ex.Message);
+                Console.WriteLine("ERROR DURING DELETION", ex.Message);
                 return StatusCode(500, "An error occurred while deleting VendorEvent");
             }
         }
@@ -261,19 +261,96 @@ namespace Practice_01.Controllers
         {
             try
             {
-                var vendorevent=await _vendorEventRepository.GetvendorEventById(Id);
+                var vendorevent = await _vendorEventRepository.GetvendorEventById(Id);
                 if (vendorevent == null)
                 {
                     return null;
                 }
                 return Ok(vendorevent);
 
-            }catch(Exception ex)
+            } catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred while retrieving VendorEvent: {ex.Message}");
                 // Return 500 status code for internal server error
                 return StatusCode(500, "An error occurred while retrieving VendorEvent");
-            } 
+            }
+        }
+
+        [HttpGet("GetAllByVendorId")]
+        public async Task<IActionResult> GetAllVendorEvent(Guid vendorId)
+        {
+            try
+            {
+                var vendorevent = await _vendorEventRepository.GetAllVendorId(vendorId);
+                if (vendorevent == null || vendorevent.Count == 0)
+                {
+                    return NotFound("no vendor event");
+                }
+                return Ok(vendorevent);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred while retrieving vendor events: {ex.Message}");
+                return StatusCode(500, "An error occurred while retrieving vendor events");
+            }
+        }
+
+
+        [HttpPut("{vendorId}")]
+        public async Task<IActionResult> UpdateVendorEvents(Guid vendorId, VendorEventModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var updatedEvents = await _vendorEventRepository.UpdateVendorEvent(vendorId, model);
+
+                if (updatedEvents != null)
+                {
+                    return Ok("Update Value Successfully....!"); // Return the updated vendor events
+                }
+                else
+                {
+                    return NotFound("Not Found"); // No vendor events found for the given vendorId
+                }
+            }
+            else
+            {
+                return BadRequest(ModelState); // Model validation failed
+            }
+        }
+
+
+        [HttpGet("GetDetailsCity")]
+        public async Task<ActionResult<List<string>>> GetDetailCity()
+        {
+            var res = await _vendorEventRepository.GetDetailsAll();
+            if (res == null || res.Count == 0)
+            {
+                return NotFound("ot found");
+            }
+            return Ok(res);
+        }
+
+        [HttpGet("GetAllDistrict")]
+        public async Task<ActionResult<List<string>>> GetDetailDistrict()
+        {
+            var res = await _vendorEventRepository.GetDistrictAll();
+            if (res == null|| res.Count == 0)
+            {
+                return NotFound("not found");
+            }
+            return Ok(res);
+        }
+
+
+        [HttpGet("GetAllPrice")]
+        public async Task<ActionResult<List<string>>> GetAllPrice()
+        {
+            var res=await _vendorEventRepository.GetAllPrice();
+            if(res== null || res.Count == 0)
+            {
+                return NotFound("not found");
+            }
+            return Ok(res);
         }
     }
 }

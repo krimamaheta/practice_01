@@ -26,7 +26,12 @@ namespace Practice_01.Models
 
         public decimal? Price { get; set; }
 
+        //for caterer
+        public string? DishName { get; set; }
+
 
         public virtual ICollection<Image> Images { get; set; }
+        public string? CityName { get; internal set; }
+        public string? District { get; internal set; }
     }
 }

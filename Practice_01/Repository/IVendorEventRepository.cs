@@ -25,12 +25,32 @@ namespace Practice_01.Repository
         Task<bool> DeleteVendorById(Guid EventVendorId);
 
 
+        //get all base on vendorID
+        Task<List<VendorEventModel>>  GetAllVendorId(Guid vendorId);
+
+        //update all 
+        Task<VendorEvent> UpdateVendorEvent(Guid vendorId, VendorEventModel model);
+
+
         Task<VendorEventModel>GetvendorEventById(Guid Id);
 
+        //linq
+
+        //get alllist city
+        Task<List<string>> GetDetailsAll();
+
+        //get district
+        Task<List<string>> GetDistrictAll();
+
+        //get all price
+        Task<List<string>> GetAllPrice();
 
 
 
-        
+
+
+
+
 
     }
 }
