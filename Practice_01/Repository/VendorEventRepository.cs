@@ -9,6 +9,7 @@ using Practice_01.ViewModel;
 using CloudinaryDotNet;
 using Azure.Messaging;
 using System.Linq;
+using Stripe;
 
 namespace Practice_01.Repository
 {
@@ -324,10 +325,7 @@ namespace Practice_01.Repository
                 return null;
             }
         }
-        public Task<bool> AddVendorEvent(VendorEventModel viewModel)
-        {
-            throw new NotImplementedException();
-        }
+      
 
 
         //get all with listImages
@@ -366,10 +364,7 @@ namespace Practice_01.Repository
             }
         }
 
-        public Task<bool> AddImage(ImageModel viewModel)
-        {
-            throw new NotImplementedException();
-        }
+     
 
         public async Task<bool> DeleteVendorById(Guid EventVendorId)
         {
@@ -396,41 +391,68 @@ namespace Practice_01.Repository
         {
             try
             {
-                var eventvendor = await _context.VendorEvents.
-                    Include(x => x.Vendor)
-                    .Include(y => y.Events)
-                    .FirstOrDefaultAsync(vendorevent => vendorevent.Id == Id);
-                if (eventvendor == null)
-                {
-                    return null;
-                }
-                if (eventvendor.Vendor == null || eventvendor.Events == null)
-                {
-                    // Handle the case where navigation properties are null
-                    // For example, you could return null or throw an exception
-                    return null;
-                }
-                //map
-                var vendoreventmodel = new VendorEventModel
-                {
-                    Price = eventvendor.Price,
-                    Images = eventvendor.Images.Select(x => x.ImageUrl).ToList(),
-                    FirmName = eventvendor.Vendor.FirmName,
-                    CityName = eventvendor.Vendor.CityName,
-                    EventName = eventvendor.Events.EventName,
-                    Address = eventvendor.Vendor.Address,
-                    WebsiteUrl = eventvendor.Vendor.WebsiteUrl,
-                    District = eventvendor.Vendor.District,
-                    Id = eventvendor.Id
-                };
-                return vendoreventmodel;
+                var data = await _context.VendorEvents
+             .Include(x => x.Vendor)
+             .Include(y => y.Events)
+             .FirstOrDefaultAsync(vendorEvent => vendorEvent.Id == Id);
 
+                if (data == null)
+                {
+                    Console.WriteLine($"No data found for ID {Id}");
+                    return null;
+                }
+
+                var vendorEventModel = new VendorEventModel
+                {
+                    Id = data.Id,
+                    VendorId = data.VendorId,
+                    EventId = data.EventId,
+                    DishName = data.DishName,
+                    Price = data.Price,
+                    //Images = data.Images.Select(x => x.ImageUrl).ToList()
+                    // Add other properties as needed
+                };
+
+                return vendorEventModel;
             }
             catch (Exception ex)
             {
-                Console.WriteLine("$\"An error occurred while retrieving VendorEvent: {ex.Message}\"");
+                Console.WriteLine($"An error occurred while retrieving data for  ID {Id}: {ex.Message}");
                 throw;
             }
+            //try
+            //{
+            //    var eventvendor = await _context.VendorEvents.
+            //        Include(x => x.Vendor)
+            //        .Include(y => y.Events)
+            //        .FirstOrDefaultAsync(vendorevent => vendorevent.Id == Id);
+            //    if (eventvendor == null|| eventvendor.Vendor == null || eventvendor.Events == null)
+            //    {
+            //        return null;
+            //    }
+
+            //    //map
+            //    var vendoreventmodel = new VendorEventModel
+            //    {
+            //        Id = eventvendor.Id,
+            //        Price = eventvendor.Price,
+            //        Images = eventvendor.Images.Select(x => x.ImageUrl).ToList(),
+            //        FirmName = eventvendor.Vendor.FirmName,
+            //        CityName = eventvendor.Vendor.CityName,
+            //        EventName = eventvendor.Events.EventName,
+            //        Address = eventvendor.Vendor.Address,
+            //        WebsiteUrl = eventvendor.Vendor.WebsiteUrl,
+            //        District = eventvendor.Vendor.District,
+
+            //    };
+            //    return vendoreventmodel;
+
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine("$\"An error occurred while retrieving VendorEvent: {ex.Message}\"");
+            //    throw;
+            //}
         }
 
         public async Task<List<VendorEventModel>> GetAllVendorId(Guid vendorId)
@@ -620,164 +642,161 @@ namespace Practice_01.Repository
          //.ToList();
          //   return res;
         }
+
+        public async Task<List<SearchModel>> GetDecorationAsync(SearchModel model)
+        
+        
+        {
+            try
+            {
+                //var decorations = await _context.VendorEvents
+                //                .Include(x => x.Vendor)
+                //                .Include(x => x.Events)
+                //                .Where(d => d.District == vendorEvent.District &&
+                //                    d.CityName == vendorEvent.CityName &&
+                //                    d.Price == vendorEvent.Price &&
+                //                    d.EventId == vendorEvent.EventId)
+                //                .Select(d => new VendorEventModel
+                //                {
+                //                    EventName = vendorEvent.EventName,
+                //                    Images = vendorEvent.Images,
+                //                    Price = vendorEvent.Price,
+                //                }).ToListAsync();
+
+                //return decorations;
+                var query =_context.VendorEvents
+                        .Include(x => x.Vendor)
+                        .Include(y => y.Events)
+                        .AsQueryable();
+                if (!string.IsNullOrEmpty(model.District) || (model.District != null && model.District.Any()))
+                {
+                    query=query.Where(v=>v.Vendor.District==model.District);
+
+                }
+                if(!string.IsNullOrEmpty(model.CityName) || (model.CityName != null && model.CityName.Any()))
+                {
+                    query = query.Where(v => v.Vendor.CityName == model.CityName);
+                }
+                if(!string .IsNullOrEmpty(model.Price) || (model.Price!=null && model.Price.Any()))
+                {
+                    //query = query.Where(v => v.Price.ToString() == model.Price);
+                    decimal price = decimal.Parse(model.Price);
+                    query = query.Where(v => v.Price == price);
+                }
+                if(!string.IsNullOrEmpty(model.EventId) || (model.EventId!=null &&model.EventId.Any()))
+                {
+                    //query = query.Where(ve => ve.Events.Id.ToString() == model.EventId);
+                    Guid eventId = Guid.Parse(model.EventId);
+                    query = query.Where(ve => ve.Events.Id == eventId);
+                }
+                var decoration = await query
+                    .Select(v => new SearchModel
+                    {
+                        EventId=v.Events.Id.ToString(),
+                        ImageUrls = v.Images.Select(i => i.ImageUrl).ToList(),
+                        EventName = v.Events.EventName,
+                        Price = v.Price.ToString(),
+                        CityName=v.Vendor.CityName,
+                        District=v.Vendor.District,
+
+                    }).ToListAsync();
+
+                return decoration;
+
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine("fail to fetch list of values");
+                return new List<SearchModel>();
+            }
+        }
+        //get all caterer 
+        public async Task<List<VendorEventModel>> GetAllCaterer()
+        {
+           
+            
+            var caterer=await _context.VendorEvents
+                .Include(x=>x.Vendor)
+                .Where(y=>y.Vendor.TypeOfVendor=="Caterer")
+                .Select(ye=>new VendorEventModel
+                {
+                    Id = ye.Id,
+                    VendorId =ye.VendorId,
+                    EventId=ye.EventId,
+                    DishName=ye.DishName,
+                    Price=ye.Price,
+                    Images=ye.Images.Select(i=>i.ImageUrl).ToList(),
+                }).ToListAsync();
+            return caterer;
+
+            
+          
+        }
+
+
+        //get all caterer by vendorid
+        public async Task<List<VendorEventModel>> GetAllCatererById(Guid vendorId)
+        {
+            try
+            {
+                var data = await _context.VendorEvents
+                    .Include(x => x.Vendor)
+                    .Include(y => y.Events)
+                    .Where(vendorevent => vendorevent.VendorId == vendorId)
+                    .Select(vendorevent => new VendorEventModel
+                    {
+                        
+                        VendorId = vendorevent.VendorId,
+                        DishName=vendorevent.DishName,
+                        Price = vendorevent.Price,
+                        Images=vendorevent.Images.Select(x=>x.ImageUrl).ToList(),
+                    }).ToListAsync();
+                Console.WriteLine($"Retrieved {data.Count} records for vendor with ID {vendorId}");
+             
+                return data;
+            }catch(Exception ex)
+            {
+                Console.WriteLine($"An error occurred while retrieving data for vendor with ID {vendorId}: {ex.Message}");
+                throw;
+            }
+        }
+
+        public async Task<List<VendorEventModel>>GetDishNameWithPrice(Guid Id)
+        {
+            try
+            {
+                var data =_context.VendorEvents
+                .Include(x => x.Vendor)
+                .Include(y => y.Events)
+                .Where(x => x.Id == Id)
+                .Select(vendorEvent => new VendorEventModel
+                {
+                    Id = vendorEvent.Id,
+                    DishName = vendorEvent.DishName,
+                    Price = vendorEvent.Price
+                }).ToList();
+                Console.WriteLine("retrival fail");
+                return data;
+            }catch(Exception ex )
+            {
+                Console.WriteLine($"An error occurred while retrieving data for  ID {Id}: {ex.Message}");
+                throw;
+            }
+        }
+
+        public Task<bool> AddVendorEvent(VendorEventModel viewModel)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> AddImage(ImageModel viewModel)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 
 
-
-
-            //try
-            //{
-            //    var vendorevents = await _context.VendorEvents
-            //                        .Include(x => x.Vendor)
-            //                        .Include(x => x.Events)
-            //                        .Where(y => y.VendorId == vendorId)
-            //                        .ToListAsync();
-            //    foreach(var vendorEvent in vendorevents)
-            //    {
-            //        //vendorEvent.VendorId = vendorId;
-
-//       if(vendorEvent.Vendor!=null)
-//        {
-//        vendorEvent.Vendor.FirmName = model.FirmName;
-//        vendorEvent.Vendor.CityName = model.CityName;
-//        vendorEvent.Vendor.Address=model.Address;
-//        vendorEvent.Vendor.District = model.District;
-//        vendorEvent.Vendor.WebsiteUrl = model.WebsiteUrl;
-
-//        }
-//        if (vendorEvent.Events != null)
-//        {
-//        vendorEvent.Events.EventName=model.EventName;
-
-//        }
-
-//        if (model.Images != null)
-//        {
-//            vendorEvent.Images = model.Images.Select(url => new Image { ImageUrl = url }).ToList();
-//        }
-//        vendorEvent.Price = model.Price;
-
-//        _context.VendorEvents.Update(vendorEvent);
-//        await _context.SaveChangesAsync();  
-//        //vendorEvent.Vendor.
-//    }
-
-
-//}catch(Exception ex)
-//{
-//    Console.WriteLine($"An error occurred while updating vendor events: {ex.Message}");
-//    throw;
-//}
-
-
-
-
-
-
-
-//public static IFormFile ConvertToIFormFile(Practice_01.Models.Image image)
-//{
-//    if (image == null)
-//    {
-//        throw new ArgumentNullException(nameof(image), "Image is null.");
-//    }
-
-//    if (string.IsNullOrWhiteSpace(image.ImageUrl))
-//    {
-//        throw new ArgumentException("Image URL is null or empty.", nameof(image));
-//    }
-
-//    // Validate image URL
-//    if (!Uri.TryCreate(image.ImageUrl, UriKind.Absolute, out var uri) ||
-//        !uri.Scheme.StartsWith("http", StringComparison.OrdinalIgnoreCase) &&
-//        !uri.Scheme.StartsWith("https", StringComparison.OrdinalIgnoreCase))
-//    {
-//        throw new ArgumentException("Invalid image URL format.");
-//    }
-
-//    // Create an HttpClient instance to download the image content
-//    using (var httpClient = new HttpClient())
-//    {
-//        try
-//        {
-//            // Download the image content as a byte array
-//            byte[] imageData = httpClient.GetByteArrayAsync(uri).Result;
-
-//            // Create a MemoryStream from the image data
-//            using (var memoryStream = new MemoryStream(imageData))
-//            {
-//                // Create an IFormFile instance from the MemoryStream
-//                return new FormFile(memoryStream, 0, memoryStream.Length, "file", Path.GetFileName(uri.LocalPath));
-//            }
-//        }
-//        catch (Exception ex)
-//        {
-//            throw new Exception($"Error converting image to IFormFile: {ex.Message}", ex);
-//        }
-//    }
-//}
-
-//        public List<VendorEventModel> GetAllVendorEventImages()
-//        {
-//        var query = from vendorEvent in _context.VendorEvents
-//                    join vendor in _context.Vendors on vendorEvent.VendorId equals vendor.Id
-//                    join events in _context.Events on vendorEvent.EventId equals events.Id
-//                    where vendor.TypeOfVendor == "Decorator"
-//                    select new VendorEventModel
-//                    {
-//                        //VendorId = vendorEvent.VendorId,
-//                        // EventId = vendorEvent.EventId,
-//                        // Price = vendorEvent.Price,
-//                        //Images = (List<IFormFile>)vendorEvent.Images,
-//                        Images = vendorEvent.Images.Select(imageUrl => ConvertToIFormFile(imageUrl)).ToList()
-//                    };
-//        //Images = vendorEvent.Images.Select(img => new FormFile(new MemoryStream(), 0, 0, "file", img.ImageUrl) as IFormFile).ToList()
-//            };
-//            return query.ToList();
-//        }
-//private IFormFile ConvertToIFormFile(string imageUrl)
-//{
-//    using (var httpClient = new HttpClient())
-//    {
-//        var imageContent = httpClient.GetByteArrayAsync(imageUrl).Result;
-//        var fileName = Path.GetFileName(imageUrl);
-//        return new FormFile(new MemoryStream(imageContent), 0, imageContent.Length, "file", fileName);
-//    }
-//}
-
-
-
-//public IQueryable<VendorEvent> GetVendorEvents(string userSelectedCity, string userSelectedEventName, decimal userGivenPrice)
-//{
-//    if (!Enum.TryParse(userSelectedEventName, out EventName selectedEvent))
-//    {
-//        // Handle invalid event name
-//        throw new ArgumentException("Invalid event name.");
-//    }
-//    return _context.VendorEvents
-//    .Include(ve => ve.Vendor)
-//    .ThenInclude(v => v.User)
-//    .Include(ve => ve.Events)
-//    .Include(ve=>ve.Images)
-//    .Where(ve => ve.Vendor.CityName == userSelectedCity)
-//    .Where(ve => ve.Events.EventName == selectedEvent)
-//    .Where(ve => ve.Price == userGivenPrice);
-//}
-
-
-
-
-//public IQueryable<VendorEvent> GetVendorEvents(string userSelectedCity, EventName userSelectedEvent, decimal userGivenPrice)
-//{
-//    return _context.VendorEvents
-//        .Include(ve => ve.Vendor)
-//        .ThenInclude(v => v.User)
-//        .Include(ve => ve.Events)
-//        .Where(ve => ve.Vendor.CityName == userSelectedCity)
-//        .Where(ve => ve.Events.EventName == userSelectedEvent)
-//        .Where(ve => ve.Price == userGivenPrice);
-//}
 
 
 

@@ -23,6 +23,11 @@ namespace Practice_01.ViewModel
         
         //for caterer
         public string ? DishName { get; set; }
+
+        public string? BookingUserId { get; set; }
+        public DateTime? BookingEventDate { get; set; }
+
+        public Decimal? FinalPayment {  get; set; }
         // public Vendor Vendor { get; set; }
         //public Event Events { get; set; }
         //public List<IFormFile>? Images {  get; set; }   

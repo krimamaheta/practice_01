@@ -233,7 +233,7 @@ namespace Practice_01.Controllers
             }
         }
 
-        [HttpDelete("{Id}")]
+        [HttpDelete("Delete/{Id}")]
         public async Task<IActionResult> DeleteVendorEvent(Guid Id)
         {
             try
@@ -256,7 +256,7 @@ namespace Practice_01.Controllers
 
 
         //get by id
-        [HttpGet("Id")]
+        [HttpGet("vendorEventId")]
         public async Task<IActionResult> GetVendorEventById(Guid Id)
         {
             try
@@ -352,5 +352,50 @@ namespace Practice_01.Controllers
             }
             return Ok(res);
         }
+
+
+        //search model
+        [HttpPost("GetDecoration")]
+        public async Task<ActionResult<List<SearchModel>>>GetDecorations([FromBody]SearchModel model)
+        {
+            var decoration = await _vendorEventRepository.GetDecorationAsync(model);
+            return Ok(decoration);
+        }
+
+        [HttpGet("AllCaterer")]
+        public async Task<ActionResult<List<VendorEventModel>>> AllCaterer()
+        {
+            var caterer=await _vendorEventRepository.GetAllCaterer();
+            return Ok(caterer);
+        }
+
+        [HttpGet("{vendorId}")]
+        public async Task<IActionResult> GetAllCatererByVendorId(Guid vendorId)
+        {
+            try
+            {
+                var caterers = await _vendorEventRepository.GetAllCatererById(vendorId);
+                return Ok(caterers);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while fetching caterers: {ex.Message}");
+            }
+        }
+
+
+        //[HttpGet("{Id}")]
+        //public async Task<IActionResult>GetVendorDishPrice(Guid Id)
+        //{
+        //    try
+        //    {
+        //        var vendorevent=await _vendorEventRepository.GetDishNameWithPrice(Id);
+        //        return Ok(vendorevent);
+        //    }catch(Exception ex)
+        //    {
+        //        return StatusCode(500, $"An error occurred while fetching caterers: {ex.Message}");
+        //    }
+        //}
+        }
     }
-}
+

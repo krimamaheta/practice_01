@@ -86,5 +86,28 @@ namespace Practice_01.Controllers
                 return NotFound("Booking not Found");
             }
         }
+
+        [HttpGet("AllUserId")]
+        public async Task<IActionResult>GetbyUserId(Guid userId)
+        {
+            try
+            {
+               var res=await _Bookingrepository.GetVendorEventsUserID(userId);
+                if (res != null)
+                {
+                    return Ok(res);
+                }
+                else {
+                    return NotFound();
+                        
+                        
+                        }
+                
+            }
+            catch(Exception ex)
+            {
+                return BadRequest("An error occurred while retrieving data: " + ex.Message); // Returning 400 Bad Request if an exception occurs
+            }
+        }
     }
 }

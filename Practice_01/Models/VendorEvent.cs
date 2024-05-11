@@ -29,9 +29,10 @@ namespace Practice_01.Models
         //for caterer
         public string? DishName { get; set; }
 
+        public decimal? NoOfDish { get; set; }
 
         public virtual ICollection<Image> Images { get; set; }
-        public string? CityName { get; internal set; }
-        public string? District { get; internal set; }
+        //public string? CityName { get;  set; }
+        //public string? District { get;  set; }
     }
 }

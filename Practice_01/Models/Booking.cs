@@ -27,9 +27,12 @@ namespace Practice_01.Models
         public virtual Event Events { get; set; }
 
 
+        //here final payment
         public decimal? Payment { get; set; }
         public string? EventLocation { get; set; }
         public DateTime EventDate { get; set; }
+
+        public string? PaymentStatus {  get; set; }
 
         public bool IsBooked { get; set; } = false;
     }

@@ -10,9 +10,9 @@ namespace practice1.Services
             SmtpClient client = new SmtpClient("smtp.ethereal.email", 587);
             client.EnableSsl = true;
             client.UseDefaultCredentials = false;
-            client.Credentials = new NetworkCredential("estella.macejkovic@ethereal.email", "aTskfnv8TQjPgxxSnz");
+            client.Credentials = new NetworkCredential("lysanne.hilll@ethereal.email", "VNnDFXSRDzCFBswzrX");
 
-            message.From = new MailAddress("estella.macejkovic@ethereal.email");
+            message.From = new MailAddress("lysanne.hilll@ethereal.email");
 
 
             // Set the message body

@@ -71,7 +71,7 @@ namespace Practice_01.Controllers
             {
                 await userManager.AddToRoleAsync(user, Role.Admin);
                 MailMessage message1 = new MailMessage();
-                message1.To.Add("nayeli.zemlak@ethereal.email");
+                message1.To.Add("lysanne.hilll@ethereal.email");
                 message1.Subject = "Registration Successfull of Admin";
                 string body1 = "<h1>Admin Registered</h1><br /><p>Thank you for registering your account!</p>";
 
@@ -94,7 +94,7 @@ namespace Practice_01.Controllers
             {
                 await userManager.AddToRoleAsync(user, Role.Decorator);
                 MailMessage message1 = new MailMessage();
-                message1.To.Add("nayeli.zemlak@ethereal.email");
+                message1.To.Add("lysanne.hilll@ethereal.email");
                 message1.Subject = "Registration of Decorator";
                 string body1 = "<h1>Decorator Registeration</h1><br /><p>Decorator Registration Successfully</p>";
 
@@ -113,7 +113,7 @@ namespace Practice_01.Controllers
             {
                 await userManager.AddToRoleAsync(user, Role.Caterer);
                 MailMessage message1 = new MailMessage();
-                message1.To.Add("nayeli.zemlak@ethereal.email");
+                message1.To.Add("lysanne.hilll@ethereal.email");
                 message1.Subject = "Registration of Caterer";
                 string body1 = "<h1>Caterer Registeration</h1><br /><p>Please wait while your registration is pending approval from an administrator and add some basic details.</p>";
                 bool success1 = _emailservice.SendAsync(message1, body1);
@@ -134,9 +134,9 @@ namespace Practice_01.Controllers
 
             await userManager.AddToRoleAsync(user, Role.User);
             MailMessage message = new MailMessage();
-            message.To.Add("nayeli.zemlak@ethereal.email");
-            message.Subject = "Registration Successful";
-            string body = "<h1>User Registered</h1><br /><p>Thank you for registering your account!</p>";
+            message.To.Add("lysanne.hilll@ethereal.email");
+            message.Subject = "Successful";
+            string body = "<h1>Event Book</h1><br /><p>Event Book Successfully!</p>";
 
             // Send the email using the email service
             bool success = _emailservice.SendAsync(message, body);
@@ -275,7 +275,7 @@ namespace Practice_01.Controllers
         [Route("testemail")]
         public IActionResult TestEmail()
         {
-            return StatusCode(StatusCodes.Status200OK, new Response { Status = "sucess", Message = "email send successfully" });
+            return StatusCode(StatusCodes.Status200OK, new Response { Status = "sucess", Message = "Your Event booked successfully" });
         }
 
         [HttpPost]

@@ -7,10 +7,13 @@ namespace Practice_01.ViewModel
     public class BookingModel
     {
         //f.k
+        public Guid BookingId { get; set; }   
         public string UserId { get; set; }
         //f.k
         public Guid EventId { get; set; }
         public decimal? Payment { get; set; }
+
+        public string? PaymentStatus { get; set; }
         public string? EventLocation { get; set; }
         public DateTime EventDate { get; set; }
 

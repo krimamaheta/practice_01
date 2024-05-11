@@ -45,6 +45,6 @@ namespace Practice_01.Models
         public string? FirmName { get; set; }
         public string? TypeOfVendor { get; set; }
 
-        public virtual ICollection<VendorEvent> VendorEvents { get; set; } = new List<VendorEvent>();
+        public virtual ICollection<VendorEvent> VendorEvents { get; set; } =new List<VendorEvent>();
     }
 }

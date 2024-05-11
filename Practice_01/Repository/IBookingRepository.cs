@@ -12,5 +12,8 @@ namespace Practice_01.Repository
 
         //booking with payment
         //Task<BookingModel> GetAllPaymentWithBookingAsync();
+
+        //find by userid
+        Task<List<VendorEventModel>> GetVendorEventsUserID(Guid userId);
     }
 }

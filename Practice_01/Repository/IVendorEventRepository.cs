@@ -45,9 +45,22 @@ namespace Practice_01.Repository
         //get all price
         Task<List<string>> GetAllPrice();
 
+        //get decoration
+        Task<List<SearchModel>> GetDecorationAsync(SearchModel model);
+
+        //get caterer by vendorId
+        Task<List<VendorEventModel>> GetAllCatererById(Guid vendorId);
+
+        //get all caterer
+
+        Task<List<VendorEventModel>> GetAllCaterer();
+
+        //dishname and price
+        Task<List<VendorEventModel>> GetDishNameWithPrice(Guid Id);
 
 
-
+        //get all by userid
+        
 
 
 

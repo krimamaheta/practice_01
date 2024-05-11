@@ -1,7 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using Practice_01.Data;
 using Practice_01.Models;
 using Practice_01.ViewModel;
+using System.Linq;
 
 namespace Practice_01.Repository
 {
@@ -18,12 +20,14 @@ namespace Practice_01.Repository
             {
                 var booking = new Booking
                 {
+                    Id=bookingModel.BookingId,
                     UserId = bookingModel.UserId,
                     EventId = bookingModel.EventId,
                     Payment = (decimal)bookingModel.Payment,
                     EventLocation = bookingModel.EventLocation,
                     EventDate = bookingModel.EventDate,
-                    IsBooked = bookingModel.IsBooked
+                    PaymentStatus = bookingModel.PaymentStatus,
+                    IsBooked = true,
                 };
 
                 _context.Bookings.Add(booking);
@@ -87,6 +91,32 @@ namespace Practice_01.Repository
             };
 
             return bookingModel;
+        }
+
+        //get value base on userId
+        public async Task<List<VendorEventModel>> GetVendorEventsUserID(Guid userId)
+        {
+            try
+            {
+                var data =_context.VendorEvents.
+                        Include(x => x.Vendor)
+                        .Include(x => x.Events)
+                        .ThenInclude(x => x.Bookings)
+                        .Select(y => new VendorEventModel
+                        {
+                            
+                            EventName = y.Events.EventName,
+                            Price = y.Price,
+                            DishName = y.DishName,
+                            BookingUserId = y.Events != null && y.Events.Bookings.Any() ? y.Events.Bookings.FirstOrDefault().UserId : null,
+                            BookingEventDate = y.Events != null && y.Events.Bookings.Any() ? y.Events.Bookings.FirstOrDefault().EventDate : null,
+                            FinalPayment = y.Events != null && y.Events.Bookings.Any() ? y.Events.Bookings.FirstOrDefault().Payment : null
+                        }).ToList();
+
+                return data;
+            }catch(Exception ex) {
+                throw new Exception("An error occurred while retrieving data: " + ex.Message);
+            }
         }
 
         public async Task<bool> UpdateBookingAsync(Guid bookingId, BookingModel bookingModel)
