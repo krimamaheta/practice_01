@@ -46,9 +46,9 @@ namespace Practice_01.Controllers
         }
 
         [HttpGet("AllBooking")]
-        public async Task<IActionResult>GetAllBooking()
+        public async Task<IActionResult>GetAllBooking(int page = 1, int pageSize = 5)
         {
-            var book=await _Bookingrepository.GetAllBookingsAsync();
+            var book=await _Bookingrepository.GetAllBookingsAsync(page,pageSize);
             if(book == null)
             {
                 return BadRequest("No booking found");
@@ -65,7 +65,7 @@ namespace Practice_01.Controllers
             var book=await _Bookingrepository.DeleteBookingAsync(Id);
             if (book)
             {
-                return Ok("Delete sucessfully");
+                return Ok("Booking Delete sucessfully");
             }
             else
             {
@@ -98,15 +98,29 @@ namespace Practice_01.Controllers
                     return Ok(res);
                 }
                 else {
-                    return NotFound();
+                    return NotFound();         
                         
-                        
-                        }
+               }
                 
             }
             catch(Exception ex)
             {
                 return BadRequest("An error occurred while retrieving data: " + ex.Message); // Returning 400 Bad Request if an exception occurs
+            }
+        }
+
+        //add booking admin side
+        [HttpPost("AddBookingAdmin")]
+        public async Task<IActionResult>AddBookingAdmin(BookingModel model, Guid UserId)
+        {
+            var book=await _Bookingrepository.AddBookingAdmin(model,UserId);
+            if(book)
+            {
+                return Ok("Booking Added Successfully........!");
+            }
+            else
+            {
+                return BadRequest("Failt to add booking.");
             }
         }
     }

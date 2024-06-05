@@ -38,7 +38,7 @@ namespace Practice_01.Controllers
         public async Task<IActionResult> Register([FromBody] Models.RegisterModel model)
         {
             var test = userManager.Users.ToList();
-            //var userExists = await userManager.FindByNameAsync(model.Username);
+
             var userExists = await userManager.FindByEmailAsync(model.Email);
             if (userExists != null)
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Status = "Error", Message = "User already exists!" });
@@ -59,11 +59,6 @@ namespace Practice_01.Controllers
                 await roleManager.CreateAsync(new IdentityRole(Role.User));
             if (!await roleManager.RoleExistsAsync(Role.Decorator))
                 await roleManager.CreateAsync(new IdentityRole(Role.Decorator));
-
-
-            //if (!await roleManager.RoleExistsAsync(Role.Decorator.ToString()))
-            //    await roleManager.CreateAsync(new IdentityRole(Role.Decorator.ToString()));
-
             if (!await roleManager.RoleExistsAsync(Role.Caterer))
                 await roleManager.CreateAsync(new IdentityRole(Role.Caterer));
 
@@ -71,14 +66,12 @@ namespace Practice_01.Controllers
             {
                 await userManager.AddToRoleAsync(user, Role.Admin);
                 MailMessage message1 = new MailMessage();
-                message1.To.Add("lysanne.hilll@ethereal.email");
+                message1.To.Add("hector.ullrich43@ethereal.email");
                 message1.Subject = "Registration Successfull of Admin";
                 string body1 = "<h1>Admin Registered</h1><br /><p>Thank you for registering your account!</p>";
-
-                // Send the email using the email service
                 bool success1 = _emailservice.SendAsync(message1, body1);
 
-                // Optionally, handle the result of sending the email
+                
                 if (success1)
                 {
 
@@ -92,13 +85,11 @@ namespace Practice_01.Controllers
             }
             if (model.UserRole == Role.Decorator)
             {
-                await userManager.AddToRoleAsync(user, Role.Decorator);
+                await userManager.AddToRoleAsync(user,Role.Decorator);
                 MailMessage message1 = new MailMessage();
-                message1.To.Add("lysanne.hilll@ethereal.email");
+                message1.To.Add("hector.ullrich43@ethereal.email");
                 message1.Subject = "Registration of Decorator";
                 string body1 = "<h1>Decorator Registeration</h1><br /><p>Decorator Registration Successfully</p>";
-
-                // Send the email using the email service
                 bool success1 = _emailservice.SendAsync(message1, body1);
                 if (success1)
                 {
@@ -111,9 +102,9 @@ namespace Practice_01.Controllers
             }
             if (model.UserRole == Role.Caterer)
             {
-                await userManager.AddToRoleAsync(user, Role.Caterer);
+                await userManager.AddToRoleAsync(user,Role.Caterer);
                 MailMessage message1 = new MailMessage();
-                message1.To.Add("lysanne.hilll@ethereal.email");
+                message1.To.Add("hector.ullrich43@ethereal.email");
                 message1.Subject = "Registration of Caterer";
                 string body1 = "<h1>Caterer Registeration</h1><br /><p>Please wait while your registration is pending approval from an administrator and add some basic details.</p>";
                 bool success1 = _emailservice.SendAsync(message1, body1);
@@ -128,31 +119,30 @@ namespace Practice_01.Controllers
 
             }
 
-            if (model.UserRole ==Role.User)
-
-
-
-            await userManager.AddToRoleAsync(user, Role.User);
-            MailMessage message = new MailMessage();
-            message.To.Add("lysanne.hilll@ethereal.email");
-            message.Subject = "Successful";
-            string body = "<h1>Event Book</h1><br /><p>Event Book Successfully!</p>";
-
-            // Send the email using the email service
-            bool success = _emailservice.SendAsync(message, body);
-
-            // Optionally, handle the result of sending the email
-            if (success)
+            if (model.UserRole == Role.User)
             {
-                // Email sent successfully, return success response or redirect
-                //return RedirectToAction("RegistrationSuccess");
+                await userManager.AddToRoleAsync(user,Role.User);
+                MailMessage message = new MailMessage();
+                message.To.Add("hector.ullrich43@ethereal.email");
+                message.Subject = "User Registration Successfull";
+                string body = "<h1>User Registration</h1><br /><p>User Register Successfully!</p>";
+           
+                bool success = _emailservice.SendAsync(message, body);
+            
+             if (success)
+             {
+               
                 return Ok(new { Status = "Success", Message = "User created successfully!" });
-            }
+             }
             else
-            {
+             {
                 return BadRequest("user not created ");
+        
+             }
 
             }
+
+            return BadRequest("Invalid user role");
 
         }
 
@@ -162,58 +152,10 @@ namespace Practice_01.Controllers
         [Route("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
-            //var user = await userManager.FindByNameAsync(model.Username);
-            //if (user != null && await userManager.CheckPasswordAsync(user, model.Password))
-            //{
-            //    var userRoles = await userManager.GetRolesAsync(user);
-
-            //    var authClaims = new List<Claim>
-            //    {
-            //     new Claim(ClaimTypes.Name, user.UserName),
-            //     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            //     };
-
-            //    // Add user roles to claims
-            //    foreach (var userRole in userRoles)
-            //    {
-            //        authClaims.Add(new Claim(ClaimTypes.Role, userRole));
-            //    }
-
-            //    // Create JWT token
-            //    var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
-            //    var token = new JwtSecurityToken(
-            //        issuer: _configuration["JWT:ValidIssuer"],
-            //        audience: _configuration["JWT:ValidAudience"],
-            //        expires: DateTime.Now.AddHours(3),
-            //        claims: authClaims,
-            //        signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
-            //    );
-
-            //    // Convert token to string
-            //    var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
-
-            //    // Store token in a cookie
-            //    HttpContext.Response.Cookies.Append("access_token", tokenString, new CookieOptions
-            //    {
-            //        HttpOnly = true,
-            //        Secure = true, // Set to true if using HTTPS
-            //        SameSite = SameSiteMode.Strict, // Adjust as per your requirement
-            //        Expires = DateTime.Now.AddHours(3)
-            //    });
-
-            //    return Ok(new
-            //    {
-            //        token = tokenString,
-            //        expiration = token.ValidTo,
-            //        user = user.UserName
-            //    });
-            //}
-
-            //return Unauthorized();
-           // var users = await userManager.Users.ToListAsync();
+        
             var users = await userManager.Users.Where(x=>x.Email == model.Email).ToListAsync();
             var user = users.Where(x => x.Email.Contains(model.Email)).FirstOrDefault();
-            //var user = await userManager.FindByNameAsync(model.Email);
+           
             if (user != null && await userManager.CheckPasswordAsync(user, model.Password))
             {
                 var userRoles = await userManager.GetRolesAsync(user);
@@ -245,11 +187,11 @@ namespace Practice_01.Controllers
                 var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
 
                 // Store token in a cookie
-                HttpContext.Response.Cookies.Append("access_token", tokenString, new CookieOptions
+                Response.Cookies.Append("access_token", tokenString, new CookieOptions
                 {
                     HttpOnly = true,
-                    Secure = true, // Set to true if using HTTPS
-                    SameSite = SameSiteMode.Strict, // Adjust as per your requirement
+                    Secure = true, 
+                    SameSite = SameSiteMode.Strict, 
                     Expires = DateTime.Now.AddHours(3)
                 });
 
@@ -257,12 +199,13 @@ namespace Practice_01.Controllers
                 {
                     token = tokenString,
                     expiration = token.ValidTo,
-                    //user = user.Email // Change to email
+                    
                     user = new
                     {
                         userID = user.Id,
                         email = user.Email,
-                        roles = userRoles
+                        roles = userRoles.Select(x=>x).FirstOrDefault(),
+                        token = tokenString,
                     }
                 });
             }
@@ -284,7 +227,7 @@ namespace Practice_01.Controllers
         {
             var users = await userManager.Users.ToListAsync();
             var user = users.Where(x => x.Email.Contains(email)).FirstOrDefault();
-          //  var user = await userManager.FindByEmailAsync(email);
+       
             if (user != null)
             {
                 var token = await userManager.GeneratePasswordResetTokenAsync(user);
@@ -306,7 +249,6 @@ namespace Practice_01.Controllers
                 string body = $"Please reset your password by clicking this link: {forgotPassLink}<br><br>";
                 body += $"Alternatively, you can use the following link: {resetPasswordHtml}";
 
-                //string body =  $"Please reset your password by clicking this link: {forgotPassLink}";
               
                 // Send the MimeMessage
                 _emailservice.SendAsync(message, body);
@@ -328,16 +270,14 @@ namespace Practice_01.Controllers
         }
 
         [HttpPost]
-        //[ValidateAntiForgeryToken]
-        //[AllowAnonymous]
+     
         [Route("reset-password")]
         public async Task<IActionResult> ResetPassword(ResetPassword resetpassword)
         {
             //email trough find user
 
-            //var user = await userManager.FindByEmailAsync(resetpassword.Email);
             var users = await userManager.Users.ToListAsync();
-            //  var user = users.Where(x => x.Email.Contains(resetpassword.Email)).FirstOrDefault();
+            
             var user = users.Where(x => resetpassword.Email != null && x.Email.Contains(resetpassword.Email)).FirstOrDefault();
             var token = await userManager.GeneratePasswordResetTokenAsync(user);
             if (user != null)
@@ -354,7 +294,7 @@ namespace Practice_01.Controllers
                 return StatusCode(StatusCodes.Status200OK, new Response { Status = "Success", Message = "password has been changed sucessfully.....!" });
 
             }
-            return StatusCode(StatusCodes.Status400BadRequest, new Response { Status = "error", Message = $"coud not sen the link to email,please try again letter." });
+            return StatusCode(StatusCodes.Status400BadRequest, new Response { Status = "error", Message = $"coud not send the link to email,please try again letter." });
         }
 
 

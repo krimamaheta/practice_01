@@ -16,11 +16,21 @@ namespace Practice_01.Controllers
             _eventRepository = eventRepository;
         }
         [HttpGet("AllEvent")]   
-        public async Task<ActionResult<IEnumerable<EventModel>>> GetAll()
+        public async Task<ActionResult<IEnumerable<EventModel>>> GetAll(int page = 1, int pageSize = 5)
         {
-                var e= await _eventRepository.GetAll();
+                var e= await _eventRepository.GetAll(page,pageSize);
                  return Ok(e);
         }
+
+
+        [HttpGet("AllEvents")]
+        public async Task<ActionResult<IEnumerable<EventModel>>> GetAllEvents()
+        {
+            var e = await _eventRepository.GetAllEvents();
+            return Ok(e);
+        }
+
+
 
 
         [HttpGet("get/{Id}")]
@@ -50,7 +60,7 @@ namespace Practice_01.Controllers
         public async Task<ActionResult<EventModel>>AddEvent(EventModel eventModel)
         {
             var create=await _eventRepository.AddEvent(eventModel);
-            return CreatedAtAction(null,new {id=create.EventId},create);
+            return CreatedAtAction(null,new {Id=create.EventId},create);
         }
         [HttpDelete("DeleteEvent/{Id}")]
         public async Task<IActionResult> DeleteEvent(Guid Id)
@@ -59,9 +69,9 @@ namespace Practice_01.Controllers
             var result = await _eventRepository.DeleteEvent(Id);
             if (!result)
             {
-                return NotFound(); // Event not found
+                return NotFound();
             }
-            return Ok(new { message = "Event Deleted Successfully...!" }); // Deleted successfully
+            return Ok(new { message = "Event Deleted Successfully...!" });
         }
 
 

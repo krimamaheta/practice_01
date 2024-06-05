@@ -10,6 +10,8 @@ namespace Practice_01.Authentication
     {
         public string Email { get; set; }
 
+        public char? IsDeleted { get; set; } = 'A';
+
         //public string CreatedBy { get; set; } = "System";//store userid and username
         //public DateTime? CreatedDate { get; set; }//when record create
         //public string? UpdatedBy { get; set; }//user id and username
@@ -19,7 +21,7 @@ namespace Practice_01.Authentication
         //[ForeignKey("RoleId")]
         //public virtual Role Role { get; set; }
 
-        public bool IsActive { get; set; } = false;
+        //public bool IsActive { get; set; } = false;
 
         public virtual ICollection<Vendor> Vendor { get; set; }
         public virtual ICollection<Booking> Bookings { get; set; }

@@ -6,11 +6,14 @@ using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Practice_01.Authentication;
 using Practice_01.Data;
+
 using Practice_01.PaymentRepository;
 using Practice_01.Repository;
 using practice1.Services;
 using Stripe;
 using System.Text;
+using Microsoft.AspNetCore.SignalR;
+using Practice_01.ViewModel;
 
 var builder = WebApplication.CreateBuilder(args);
 ConfigurationManager configuration = builder.Configuration;
@@ -57,7 +60,7 @@ builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IVendorEventRepository, VendorEventRepository>();
 builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddScoped<IImageRepository, ImageRepository>();
-
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 
 builder.Services.AddScoped<TokenService>();
@@ -67,28 +70,6 @@ builder.Services.AddScoped<ChargeService>();
 StripeConfiguration.ApiKey = builder.Configuration.GetValue<string>("StripeOptions:SecretKey");
 builder.Services.AddScoped<IStripeRepository, StripeRepository>();
 
-
-//builder.Services.AddScoped<IStripeRepository>(provider =>
-//{
-//    var stripeApiKey = configuration["Stripe:ApiKey"]; // Fetch the API key from configuration
-//    return new StripeRepository(stripeApiKey);
-//});
-
-//StripeConfiguration.ApiKey = configuration["Stripe:SecretKey"];
-
-//StripeConfiguration.ApiKey = builder.Configuration.GetValue<string>("StripeOptions:SecretKey");
-//builder.Services.AddSingleton<IStripeRepository, StripeRepository>();
-
-
-//StripeConfiguration.ApiKey = builder.Configuration.GetValue<string>("StripeOptions:SecretKey");
-
-//builder.Services.AddSingleton<IStripeRepository, StripeRepository>(); // Register StripeService
-//builder.Services.AddSingleton<IStripeRepository>(provider =>
-//{
-//    var stripeService = provider.GetRequiredService<IStripeRepository>();
-//    var stripeApiKey = builder.Configuration.GetValue<string>("StripeOptions:SecretKey");
-//    return new StripeRepository(stripeService, stripeApiKey);
-//});
 
 
 //to add loop linq 
@@ -108,14 +89,6 @@ builder.Services.AddSingleton(emailconfigu);
 builder.Services.AddTransient<practice1.Services.IEmailService, EmailService>();
 
 
-//builder.Services.AddScoped<TokenService>();
-//builder.Services.AddScoped<CustomerService>();
-//builder.Services.AddScoped<ChargeService>();
-
-//StripeConfiguration.ApiKey = builder.Configuration.GetValue<string>("StripeOptions:SecretKey");
-//builder.Services.AddScoped<IStripeRepository, StripeService>();
-
-// Add services to the container.
 
 
 
@@ -125,7 +98,7 @@ builder.Services.AddSingleton<SymmetricSecurityKey>(provider =>
     var key = Encoding.UTF8.GetBytes(configuration["JWT:Secret"]!);
     return new SymmetricSecurityKey(key);
 });
-//builder.Services.Configure<IdentityOptions>(options => options.SignIn.RequireConfirmedEmail = true);
+
 builder.Services.Configure<DataProtectionTokenProviderOptions>(options => options.TokenLifespan = TimeSpan.FromHours(10));
 
 
@@ -136,11 +109,13 @@ builder.Services.AddSingleton<SymmetricSecurityKey>(provider =>
     var key = Encoding.UTF8.GetBytes(configuration["JWT:Secret"]!);
     return new SymmetricSecurityKey(key);
 });
-//builder.Services.Configure<IdentityOptions>(options => options.SignIn.RequireConfirmedEmail = true);
+
 builder.Services.Configure<DataProtectionTokenProviderOptions>(options => options.TokenLifespan = TimeSpan.FromHours(10));
 
 
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -214,8 +189,10 @@ app.UseCors(options =>
 
 app.UseHttpsRedirection();
 
+app.UseRouting();
 app.UseAuthorization();
 
 app.MapControllers();
+
 
 app.Run();
